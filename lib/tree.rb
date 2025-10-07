@@ -26,9 +26,8 @@ class Tree
       break if pointer.left.nil? && pointer.right.nil?
       pointer = val < pointer.data ? pointer.left : pointer.right
     end
-    node = Node.new(val, nil, nil)
-    pointer.left = node if val < pointer.data
-    pointer.right = node if val > pointer.data
+    direction = val < pointer.data ? :left : :right
+    pointer.public_send("#{direction}=", Node.new(val, nil, nil))
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
