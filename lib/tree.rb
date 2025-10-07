@@ -4,16 +4,17 @@ class Tree
   
   def initialize(arr)
     @arr = arr.uniq.sort
-    @root = build_tree(arr)
+    @root = build_tree(@arr)
   end
 
   def build_tree(arr)
+    #binding.pry
     return nil if arr.length < 1
     return Node.new(arr[0], nil, nil) if arr.length == 1
     mid = (arr.length - 1) / 2
     left = arr[0...mid]
     right = arr[mid + 1..arr.length]
-    #binding.pry
+    
     Node.new(arr[mid], build_tree(left), build_tree(right))
   end
 
