@@ -11,6 +11,7 @@ class Node
   end
 
   def <=>(other)
+    return nil if other.nil?
     data <=> other.data
   end
   
