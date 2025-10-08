@@ -10,6 +10,10 @@ class Node
     @right = right
   end
 
+  def has_children?
+    self.left.nil? && self.right.nil? ? false : true
+  end
+
   def <=>(other)
     return nil if other.nil?
     data <=> other.data
