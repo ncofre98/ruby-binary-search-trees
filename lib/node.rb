@@ -10,8 +10,8 @@ class Node
     @right = right
   end
 
-  def has_children?
-    self.left.nil? && self.right.nil? ? false : true
+  def leaf?
+    self.left.nil? && self.right.nil? ? true : false
   end
 
   def <=>(other)
