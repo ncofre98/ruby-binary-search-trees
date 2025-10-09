@@ -14,6 +14,10 @@ class Node
     self.left.nil? && self.right.nil? ? true : false
   end
 
+  def single_child?
+    self.left ^ self.right
+  end
+
   def <=>(other)
     return nil if other.nil?
     data <=> other.data

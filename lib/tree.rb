@@ -9,7 +9,6 @@ class Tree
   end
 
   def build_tree(arr)
-    #binding.pry
     return nil if arr.length < 1
     return Node.new(arr[0], nil, nil) if arr.length == 1
     mid = (arr.length - 1) / 2
@@ -33,25 +32,23 @@ class Tree
   
   def remove(val)
     p = Pointer.new(root, nil)
+    direction = :right
 
-    #Case 1: Root node with both children (or single element)
-    if p.current.data == val
-      if p.current.leaf?
-        p.current.data = nil
-        return
-      end
-      
-      p.parent, p.current = p.current, p.current.right
-      p.parent, p.current = p.current, p.current.left while p.current.left
-      #puts "Hasta aquí current = #{p.current.data} y parent = #{p.parent.data}"
-      root.data = p.current.data
+    while val != p.current.data && !p.current.leaf?
+      direction = val < p.current.data ? :left : :right
+      p.parent = p.current
+      p.current = p.current.public_send(direction)
+    end
 
-      if p.current.leaf?
-        p.parent.left = nil
-      else
-        p.current.data = p.current.right.data
-        p.current.right = nil
-      end
+    #Case 0:
+    return if p.current.data != val
+    #Case 1:
+    if p.current.leaf?
+      p.parent.public_send("#{direction}=", nil)
+    #Case 2:
+    elsif p.current.single_child?
+      p.current.data = p.current.public_send(direction).data
+      p.current.public_send("#{direction}=", nil)
     end
   end
 
