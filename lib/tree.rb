@@ -74,6 +74,11 @@ class Tree
       min.parent.public_send("#{direction}=", min.current.right)
     end
   end
+
+  def find(val)
+    node = traverse(val)[:pointer][:current]
+    node.data != val ? nil : node
+  end
   
 
   def pretty_print(node = @root, prefix = '', is_left = true)
