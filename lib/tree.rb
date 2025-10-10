@@ -2,12 +2,14 @@ class Tree
   Pointer = Struct.new(:current, :parent)
   require_relative 'node'
   attr_reader :arr, :root
+
   
   def initialize(arr)
     @arr = arr.uniq.sort
     @root = build_tree(@arr)
   end
 
+  
   def build_tree(arr)
     return nil if arr.empty?
     mid = (arr.length - 1) / 2
@@ -17,6 +19,7 @@ class Tree
     Node.new(arr[mid], build_tree(left), build_tree(right))
   end
 
+  
   def insert(val)
     p = root
     
@@ -28,17 +31,31 @@ class Tree
     direction = val < p.data ? :left : :right
     p.public_send("#{direction}=", Node.new(val, nil, nil))
   end
-  
-  def remove(val)
-    #binding.pry
-    p = Pointer.new(root, nil)
-    direction = :right
 
-    while val != p.current.data && !p.current.leaf?
-      direction = val < p.current.data ? :left : :right
+  
+  def traverse(val, pointer = root, parent = nil)
+    p = Pointer.new(pointer, parent)
+    direction = nil
+    cond = if [:min, :max].include?(val)
+             -> { !p.current.leaf? }
+           else
+             -> { val != p.current.data && !p.current.leaf? }
+           end
+
+    while cond.call
+      direction = val == :min || val < p.current.data ? :left : :right
+      break if p.current.public_send(direction).nil?
       p.parent = p.current
       p.current = p.current.public_send(direction)
     end
+    
+    { :pointer => p, :direction => direction }
+  end
+
+
+  def remove(val)
+    traversal = traverse(val)
+    p, direction = traversal[:pointer], traversal[:direction]
 
     #Case 0:
     return if p.current.data != val
@@ -51,16 +68,13 @@ class Tree
       p.current.public_send("#{direction}=", nil)
     #Case 3:
     else
-      min = Pointer.new(p.current.right, p.current)
-      while (min.current.left)
-        min.parent = min.current
-        min.current = min.current.left
-      end
+      traversal = traverse(:min, p.current)
+      min, direction = traversal[:pointer], traversal[:direction]
       p.current.data = min.current.data
-      min.parent.right = min.current.right
-      #min.parent.left = nil
+      min.parent.public_send("#{direction}=", min.current.right)
     end
   end
+  
 
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
