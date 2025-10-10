@@ -9,11 +9,10 @@ class Tree
   end
 
   def build_tree(arr)
-    return nil if arr.length < 1
-    return Node.new(arr[0], nil, nil) if arr.length == 1
+    return nil if arr.empty?
     mid = (arr.length - 1) / 2
     left = arr[0...mid]
-    right = arr[mid + 1..arr.length]
+    right = arr[mid + 1..-1]
     
     Node.new(arr[mid], build_tree(left), build_tree(right))
   end
@@ -31,6 +30,7 @@ class Tree
   end
   
   def remove(val)
+    #binding.pry
     p = Pointer.new(root, nil)
     direction = :right
 
@@ -49,6 +49,16 @@ class Tree
     elsif p.current.single_child?
       p.current.data = p.current.public_send(direction).data
       p.current.public_send("#{direction}=", nil)
+    #Case 3:
+    else
+      min = Pointer.new(p.current.right, p.current)
+      while (min.current.left)
+        min.parent = min.current
+        min.current = min.current.left
+      end
+      p.current.data = min.current.data
+      min.parent.right = min.current.right
+      #min.parent.left = nil
     end
   end
 

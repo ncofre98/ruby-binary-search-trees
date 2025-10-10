@@ -15,7 +15,7 @@ class Node
   end
 
   def single_child?
-    self.left ^ self.right
+    self.left.nil? ^ self.right.nil?
   end
 
   def <=>(other)
