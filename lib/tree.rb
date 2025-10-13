@@ -95,6 +95,16 @@ class Tree
     queue.map { |node| node.data } unless block_given?
   end
 
+  def preorder(node = root, arr = [], &blk)
+    return if node.nil?
+    yield(node) if block_given?
+    arr << node.data
+    preorder(node.left, arr, &blk)
+    preorder(node.right, arr, &blk)
+    
+    arr unless block_given?
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
