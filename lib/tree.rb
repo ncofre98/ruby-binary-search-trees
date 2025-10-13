@@ -79,7 +79,21 @@ class Tree
     node = traverse(val)[:pointer][:current]
     node.data != val ? nil : node
   end
-  
+
+  def level_order
+    i = 0
+    queue = [root]
+    
+    while queue.size != arr.size
+      node = queue[i]
+      yield(node) if block_given?
+      queue << node.left if node.left
+      queue << node.right if node.right
+      i += 1
+    end
+    
+    queue.map { |node| node.data } unless block_given?
+  end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
