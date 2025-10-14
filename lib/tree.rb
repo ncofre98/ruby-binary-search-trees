@@ -3,40 +3,38 @@ class Tree
   require_relative 'node'
   attr_reader :arr, :root
 
-  
   def initialize(arr)
     @arr = arr.uniq.sort
     @root = build_tree(@arr)
   end
 
-  
   def build_tree(arr)
     return nil if arr.empty?
+
     mid = (arr.length - 1) / 2
     left = arr[0...mid]
-    right = arr[mid + 1..-1]
-    
+    right = arr[mid + 1..]
+
     Node.new(arr[mid], build_tree(left), build_tree(right))
   end
 
-  
   def insert(val)
     p = root
-    
+
     while p
       return if val == p.data
       break if p.leaf?
+
       p = val < p.data ? p.left : p.right
     end
     direction = val < p.data ? :left : :right
     p.public_send("#{direction}=", Node.new(val, nil, nil))
   end
 
-  
   def locate(val, pointer = root, parent = nil)
     p = Pointer.new(pointer, parent)
     direction = nil
-    cond = if [:min, :max].include?(val)
+    cond = if %i[min max].include?(val)
              -> { !p.current.leaf? }
            else
              -> { val != p.current.data && !p.current.leaf? }
@@ -45,31 +43,34 @@ class Tree
     while cond.call
       direction = val == :min || val < p.current.data ? :left : :right
       break if p.current.public_send(direction).nil?
+
       p.parent = p.current
       p.current = p.current.public_send(direction)
     end
-    
-    { :pointer => p, :direction => direction }
-  end
 
+    { pointer: p, direction: direction }
+  end
 
   def remove(val)
     traversal = locate(val)
-    p, direction = traversal[:pointer], traversal[:direction]
+    p = traversal[:pointer]
+    direction = traversal[:direction]
 
-    #Case 0:
+    # Case 0:
     return if p.current.data != val
-    #Case 1:
+
+    # Case 1:
     if p.current.leaf?
       p.parent.public_send("#{direction}=", nil)
-    #Case 2:
+    # Case 2:
     elsif p.current.single_child?
       p.current.data = p.current.public_send(direction).data
       p.current.public_send("#{direction}=", nil)
-    #Case 3:
+    # Case 3:
     else
       traversal = locate(:min, p.current)
-      min, direction = traversal[:pointer], traversal[:direction]
+      min = traversal[:pointer]
+      direction = traversal[:direction]
       p.current.data = min.current.data
       min.parent.public_send("#{direction}=", min.current.right)
     end
@@ -83,7 +84,7 @@ class Tree
   def level_order
     i = 0
     queue = [root]
-    
+
     while queue.size != arr.size
       node = queue[i]
       yield(node) if block_given?
@@ -91,7 +92,7 @@ class Tree
       queue << node.right if node.right
       i += 1
     end
-    
+
     queue.map { |node| node.data } unless block_given?
   end
 
@@ -99,9 +100,9 @@ class Tree
     return if node.nil?
 
     steps = {
-      :preorder => [:data, :left, :right],
-      :inorder => [:left, :data, :right],
-      :postorder => [:left, :right, :data]
+      preorder: %i[data left right],
+      inorder: %i[left data right],
+      postorder: %i[left right data]
     }
 
     steps[order].each do |step|
@@ -113,7 +114,7 @@ class Tree
         arr << node.data
       end
     end
-    
+
     arr unless block_given?
   end
 
