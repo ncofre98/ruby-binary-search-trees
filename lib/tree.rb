@@ -81,11 +81,12 @@ class Tree
     node.data != val ? nil : node
   end
 
-  def level_order
+  def level_order(origin = root)
     i = 0
-    queue = [root]
+    queue = [origin]
 
-    while queue.size != arr.size
+    until queue[i].nil?
+      #binding.pry
       node = queue[i]
       yield(node) if block_given?
       queue << node.left if node.left
@@ -128,6 +129,22 @@ class Tree
 
   def postorder(node = root, arr = [], &blk)
     traversal(:postorder, node, arr, &blk)
+  end
+
+  def height(val)
+    node = find(val)
+    return nil if node.nil?
+    deepest_val = level_order(node)[-1]
+    pointer = node
+    direction = deepest_val < pointer.data ? :left : :right
+    counter = 0
+
+    until pointer.data == deepest_val
+      counter += 1
+      pointer = pointer.public_send(direction)
+    end
+
+    counter
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
