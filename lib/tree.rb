@@ -33,7 +33,7 @@ class Tree
   end
 
   
-  def traverse(val, pointer = root, parent = nil)
+  def locate(val, pointer = root, parent = nil)
     p = Pointer.new(pointer, parent)
     direction = nil
     cond = if [:min, :max].include?(val)
@@ -54,7 +54,7 @@ class Tree
 
 
   def remove(val)
-    traversal = traverse(val)
+    traversal = locate(val)
     p, direction = traversal[:pointer], traversal[:direction]
 
     #Case 0:
@@ -68,7 +68,7 @@ class Tree
       p.current.public_send("#{direction}=", nil)
     #Case 3:
     else
-      traversal = traverse(:min, p.current)
+      traversal = locate(:min, p.current)
       min, direction = traversal[:pointer], traversal[:direction]
       p.current.data = min.current.data
       min.parent.public_send("#{direction}=", min.current.right)
@@ -76,7 +76,7 @@ class Tree
   end
 
   def find(val)
-    node = traverse(val)[:pointer][:current]
+    node = locate(val)[:pointer][:current]
     node.data != val ? nil : node
   end
 
@@ -95,34 +95,38 @@ class Tree
     queue.map { |node| node.data } unless block_given?
   end
 
-  def preorder(node = root, arr = [], &blk)
+  def traversal(order = :inoder, node = root, arr = [], &blk)
     return if node.nil?
-    yield(node) if block_given?
-    arr << node.data
-    preorder(node.left, arr, &blk)
-    preorder(node.right, arr, &blk)
+
+    steps = {
+      :preorder => [:data, :left, :right],
+      :inorder => [:left, :data, :right],
+      :postorder => [:left, :right, :data]
+    }
+
+    steps[order].each do |step|
+      case step
+      when :left then traversal(order, node.left, arr, &blk)
+      when :right then traversal(order, node.right, arr, &blk)
+      when :data
+        yield(node) if block_given?
+        arr << node.data
+      end
+    end
     
     arr unless block_given?
   end
 
-  def inorder(node = root, arr = [], &blk)
-    return if node.nil?
-    inorder(node.left, arr, &blk)
-    arr << node.data
-    yield(node) if block_given?
-    inorder(node.right, arr, &blk)
+  def preorder(node = root, arr = [], &blk)
+    traversal(:preorder, node, arr, &blk)
+  end
 
-    arr unless block_given?
+  def inorder(node = root, arr = [], &blk)
+    traversal(:inorder, node, arr, &blk)
   end
 
   def postorder(node = root, arr = [], &blk)
-    return if node.nil?
-    postorder(node.left, arr, &blk)
-    postorder(node.right, arr, &blk)
-    arr << node.data
-    yield(node) if block_given?
-
-    arr unless block_given?
+    traversal(:postorder, node, arr, &blk)
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
