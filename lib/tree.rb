@@ -22,13 +22,15 @@ class Tree
     p = root
 
     while p
-      return if val == p.data
-      break if p.leaf?
-
-      p = val < p.data ? p.left : p.right
+      return if p.data == val
+      dir = val < p.data ? :left : :right
+      
+      if p.public_send(dir).nil?
+        p.public_send("#{dir}=", Node.new(val, nil, nil))
+        break
+      end
+      p = p.public_send(dir)
     end
-    direction = val < p.data ? :left : :right
-    p.public_send("#{direction}=", Node.new(val, nil, nil))
   end
 
   def locate(val, pointer = root, parent = nil)
