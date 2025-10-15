@@ -149,6 +149,18 @@ class Tree
     counter
   end
 
+  def depth(val)
+    p = root
+    counter = 0
+    
+    while p && p.data != val
+      p = val < p.data ? p.left : p.right
+      counter += 1
+    end
+
+    p.nil? ? nil : counter
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
