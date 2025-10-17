@@ -53,6 +53,14 @@ class Tree
     { pointer: p, direction: direction }
   end
 
+  def replace_child(parent, direction, child)
+    if parent
+      parent.public_send("#{direction}=", child)
+    else
+      @root = child
+    end
+  end
+
   def remove(val)
     traversal = locate(val)
     p = traversal[:pointer]
@@ -63,18 +71,26 @@ class Tree
 
     # Case 1:
     if p.current.leaf?
-      p.parent.public_send("#{direction}=", nil)
+      replace_child(p.parent, direction, nil)
     # Case 2:
     elsif p.current.single_child?
-      p.current.data = p.current.public_send(direction).data
-      p.current.public_send("#{direction}=", nil)
+      direction = p.current.left ? :left : :right
+      replace_child(p.parent, direction, p.current.left || p.current.right )
     # Case 3:
     else
-      traversal = locate(:min, p.current)
+      traversal = locate(:min, p.current.right, p.current)
       min = traversal[:pointer]
-      direction = traversal[:direction]
-      p.current.data = min.current.data
-      min.parent.public_send("#{direction}=", min.current.right)
+
+      if min.current.leaf?
+        p.current.data = min.current.data
+        direction = min.parent.left == min.current ? :left : :right
+        min.parent.public_send("#{direction}=", nil)
+        min.current.public_send("#{direction}=", nil)
+      elsif min.current.single_child?
+        min.current.left = p.current.left if p.current.left
+        direction = p.parent.left.data == p.current.data ? :left : :right
+        p.parent.public_send("#{direction}=", min.current)
+      end
     end
   end
 
@@ -88,7 +104,6 @@ class Tree
     queue = [origin]
 
     until queue[i].nil?
-      #binding.pry
       node = queue[i]
       yield(node) if block_given?
       queue << node.left if node.left
