@@ -74,7 +74,6 @@ class Tree
       replace_child(p.parent, direction, nil)
     # Case 2:
     elsif p.current.single_child?
-      direction = p.current.left ? :left : :right
       replace_child(p.parent, direction, p.current.left || p.current.right )
     # Case 3:
     else
@@ -86,7 +85,7 @@ class Tree
         direction = min.parent.left == min.current ? :left : :right
         min.parent.public_send("#{direction}=", nil)
         min.current.public_send("#{direction}=", nil)
-      elsif min.current.single_child?
+      else
         min.current.left = p.current.left if p.current.left
         direction = p.parent.left.data == p.current.data ? :left : :right
         p.parent.public_send("#{direction}=", min.current)
