@@ -146,13 +146,14 @@ class Tree
   end
 
   def height(val)
-    node = find(val)
+    node = val.class == Node ? val : find(val)
     
     return nil if node.nil?
     
     deepest_val = level_order(node)[-1]
     pointer = node
     counter = 0
+    
     until pointer.data == deepest_val
       counter += 1
       dir = deepest_val < pointer.data ? :left : :right
@@ -172,6 +173,20 @@ class Tree
     end
 
     p.nil? ? nil : counter
+  end
+
+  def balanced?
+    level_order do |node|
+      left_height = node.left.nil? ? 0 : height(node.left)
+      right_height = node.right.nil? ? 0 : height(node.right)
+      return false if (left_height - right_height).abs > 1
+    end
+    
+    true
+  end
+
+  def rebalance
+    initialize(self.level_order)
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
