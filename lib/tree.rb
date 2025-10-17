@@ -79,16 +79,13 @@ class Tree
     else
       traversal = locate(:min, p.current.right, p.current)
       min = traversal[:pointer]
-
+      p.current.data = min.current.data
+      direction = min.parent.left == min.current ? :left : :right
+      
       if min.current.leaf?
-        p.current.data = min.current.data
-        direction = min.parent.left == min.current ? :left : :right
-        min.parent.public_send("#{direction}=", nil)
-        min.current.public_send("#{direction}=", nil)
+        replace_child(min.parent, direction, nil)
       else
-        min.current.left = p.current.left if p.current.left
-        direction = p.parent.left.data == p.current.data ? :left : :right
-        p.parent.public_send("#{direction}=", min.current)
+        replace_child(min.parent, direction, min.current.left || min.current.right)
       end
     end
   end
