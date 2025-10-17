@@ -23,8 +23,9 @@ class Tree
 
     while p
       return if p.data == val
+
       dir = val < p.data ? :left : :right
-      
+ 
       if p.public_send(dir).nil?
         p.public_send("#{dir}=", Node.new(val, nil, nil))
         break
@@ -146,14 +147,15 @@ class Tree
 
   def height(val)
     node = find(val)
+    
     return nil if node.nil?
+    
     deepest_val = level_order(node)[-1]
     pointer = node
-    dir = deepest_val < pointer.data ? :left : :right
     counter = 0
-
     until pointer.data == deepest_val
       counter += 1
+      dir = deepest_val < pointer.data ? :left : :right
       pointer = pointer.public_send(dir)
     end
 
