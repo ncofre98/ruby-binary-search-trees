@@ -35,7 +35,7 @@ class Tree
 
   def locate(val, pointer = root, parent = nil)
     p = Pointer.new(pointer, parent)
-    direction = nil
+    dir = nil
     cond = if %i[min max].include?(val)
              -> { !p.current.leaf? }
            else
@@ -43,19 +43,19 @@ class Tree
            end
 
     while cond.call
-      direction = val == :min || val < p.current.data ? :left : :right
-      break if p.current.public_send(direction).nil?
+      dir = val == :min || val < p.current.data ? :left : :right
+      break if p.current.public_send(dir).nil?
 
       p.parent = p.current
-      p.current = p.current.public_send(direction)
+      p.current = p.current.public_send(dir)
     end
 
-    { pointer: p, direction: direction }
+    { pointer: p, dir: dir }
   end
 
-  def replace_child(parent, direction, child)
+  def replace_child(parent, dir, child)
     if parent
-      parent.public_send("#{direction}=", child)
+      parent.public_send("#{dir}=", child)
     else
       @root = child
     end
@@ -64,28 +64,28 @@ class Tree
   def remove(val)
     traversal = locate(val)
     p = traversal[:pointer]
-    direction = traversal[:direction]
+    dir = traversal[:dir]
 
     # Case 0:
     return if p.current.data != val
 
     # Case 1:
     if p.current.leaf?
-      replace_child(p.parent, direction, nil)
+      replace_child(p.parent, dir, nil)
     # Case 2:
     elsif p.current.single_child?
-      replace_child(p.parent, direction, p.current.left || p.current.right )
+      replace_child(p.parent, dir, p.current.left || p.current.right )
     # Case 3:
     else
       traversal = locate(:min, p.current.right, p.current)
       min = traversal[:pointer]
       p.current.data = min.current.data
-      direction = min.parent.left == min.current ? :left : :right
+      dir = min.parent.left == min.current ? :left : :right
       
       if min.current.leaf?
-        replace_child(min.parent, direction, nil)
+        replace_child(min.parent, dir, nil)
       else
-        replace_child(min.parent, direction, min.current.left || min.current.right)
+        replace_child(min.parent, dir, min.current.left || min.current.right)
       end
     end
   end
@@ -149,12 +149,12 @@ class Tree
     return nil if node.nil?
     deepest_val = level_order(node)[-1]
     pointer = node
-    direction = deepest_val < pointer.data ? :left : :right
+    dir = deepest_val < pointer.data ? :left : :right
     counter = 0
 
     until pointer.data == deepest_val
       counter += 1
-      pointer = pointer.public_send(direction)
+      pointer = pointer.public_send(dir)
     end
 
     counter
