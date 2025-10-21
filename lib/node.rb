@@ -9,7 +9,7 @@ class Node
   end
 
   def leaf?
-    left.nil? && right.nil? ? true : false
+    left.nil? && right.nil?
   end
 
   def single_child?
